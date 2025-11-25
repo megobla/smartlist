@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartList - Your frictionless grocery shopping companion</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <!-- Logo -->
+            <div class="logo-container">
+                <img src="assets/logo.png" alt="SmartList Logo" class="logo">
+            </div>
+
+            <!-- Title and Caption -->
+            <h1>SmartList</h1>
+            <p class="subtitle">Your frictionless grocery shopping companion</p>
+
+            <!-- Add Product Button -->
+            <button id="headerAddBtn" class="btn-primary" aria-controls="addProductModal" aria-haspopup="dialog">
+                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Add product</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state">
+                <img src="assets/empty-state.png" alt="Empty shopping list" class="empty-state-img">
+                <p class="empty-state-text">Add a new item to the list</p>
+            </div>
+
+            <!-- Products List -->
+            <div id="productsList" class="products-list" style="display: none;">
+                <div class="products-container" id="productsContainer">
+                    <!-- Product cards will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-card">
+                <div class="footer-content">
+                    <!-- Progress Circle -->
+                    <div class="progress-circle-container">
+                        <svg class="progress-circle" viewBox="0 0 64 64">
+                            <circle
+                                cx="32"
+                                cy="32"
+                                r="29"
+                                fill="none"
+                                stroke="rgba(255, 255, 255, 0.2)"
+                                stroke-width="6"
+                            />
+                            <circle
+                                id="progressBar"
+                                cx="32"
+                                cy="32"
+                                r="29"
+                                fill="none"
+                                stroke="#C5E99F"
+                                stroke-width="6"
+                                stroke-linecap="round"
+                            />
+                        </svg>
+                    </div>
+
+                    <!-- Shopping Info -->
+                    <div class="shopping-info">
+                        <h3 class="total-price" id="totalPrice">$0.00</h3>
+                        <p class="item-count" id="itemCount">0 of 0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Add Product Modal -->
+    <div id="addProductModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="addProductTitle" aria-hidden="true">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <!-- Header -->
+            <div class="modal-header">
+                <div>
+                    <h2 id="addProductTitle">Add Product</h2>
+                    <p class="modal-subtitle">Add a new item to your shopping list.</p>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form id="addProductForm" class="modal-form">
+                <div class="form-group">
+                    <label for="productName">Product Name</label>
+                    <input
+                        type="text"
+                        id="productName"
+                        class="form-input"
+                        placeholder="Enter product name"
+                        required
+                    />
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" id="cancelBtn" class="btn-secondary">
+                        <span>Cancel</span>
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <span>Add Product</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
