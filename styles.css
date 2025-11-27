@@ -23,6 +23,7 @@
 
     /* Light Green */
     --light-green-50: #F5FAEE;
+    --light-green-100: #E8F4D9;
     --light-green-400: #C5E99F;
 
     /* Greyscale */
@@ -72,13 +73,28 @@ html, body {
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: var(--greyscale-100);
+    background-color: var(--green-900);
     color: var(--color-text-secondary);
 }
 
 body {
     min-height: 100vh;
-    padding-bottom: 6rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 16px;
+}
+
+/* Main App Container */
+.app-container {
+    width: 100%;
+    max-width: 880px;
+    background-color: var(--greyscale-50);
+    border-radius: 40px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
 }
 
 /* Typography */
@@ -162,11 +178,9 @@ label {
 
 /* Header */
 .header {
-    background-color: var(--light-green-50);
-    border-radius: 0 0 2rem 2rem;
+    background: linear-gradient(180deg, #115D5B -0.33%, #C5E99F 72.77%);
+    border-radius: 24px;
     padding: 2rem 0;
-    margin: 0 20px;
-    margin-bottom: 1.5rem;
 }
 
 .header-container {
@@ -198,7 +212,7 @@ label {
 
 /* Buttons */
 .btn-primary {
-    min-height: 48px;
+    width: 100%;
     background-color: var(--green-500);
     color: white;
     border: none;
@@ -207,7 +221,7 @@ label {
     align-items: center;
     justify-content: center;
     gap: var(--space-xs);
-    padding: 20px 12px;
+    padding: 12px 20px;
     font-family: 'Open Sans', sans-serif;
     font-size: 16px;
     font-weight: 400;
@@ -231,7 +245,7 @@ label {
     align-items: center;
     justify-content: center;
     gap: var(--space-xs);
-    padding: 20px 12px;
+    padding: 12px 20px;
     font-family: 'Open Sans', sans-serif;
     font-size: 16px;
     font-weight: 400;
@@ -242,12 +256,6 @@ label {
 /* Utility: full-width button when needed (e.g., in forms/modals) */
 .btn-full {
     width: 100%;
-}
-
-/* Contextual override: header buttons should not be full width */
-.header .btn-primary {
-    width: auto;
-    min-width: 160px;
 }
 
 .btn-secondary:hover {
@@ -262,13 +270,14 @@ label {
 
 /* Main Content */
 .main-content {
-    min-height: calc(100vh - 300px);
+    flex: 1;
+    margin-bottom: -24px;
 }
 
 .container {
-    max-width: 1024px;
+    width: 100%;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0;
 }
 
 /* Empty State */
@@ -357,6 +366,23 @@ label {
     display: block;
 }
 
+/* Bounce animation - snappy completion feedback */
+@keyframes bounce {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.product-card.bounce {
+    animation: bounce 0.25s ease-out;
+}
+
 .product-title {
     flex: 1;
     color: var(--color-text-secondary);
@@ -412,13 +438,13 @@ label {
 .form-input {
     width: 100%;
     min-height: 48px;
-    padding: 20px 12px;
+    padding: 12px 20px;
     border-radius: 128px;
     border: 2px solid var(--greyscale-300);
     background-color: var(--greyscale-100);
     color: var(--color-text-secondary);
     font-family: 'Open Sans', sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     text-align: left;
     transition: all 0.15s ease;
     appearance: textfield;
@@ -443,15 +469,14 @@ label {
 
 .form-input:focus {
     outline: none;
-    background-color: var(--greyscale-100);
+    background-color: var(--greyscale-50);
     border-color: var(--greyscale-900);
     color: var(--greyscale-900);
 }
 
 /* Accessible focus ring for keyboard users (use focus-visible where supported) */
 .form-input:focus-visible {
-    /* White focus ring as requested */
-    box-shadow: 0 0 0 4px rgba(255, 255, 255, 1);
+    box-shadow: none;
     border-color: var(--color-primary-dark);
     outline: none;
 }
@@ -508,69 +533,208 @@ label {
 
 /* Footer */
 .footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 16px 20px;
-    background-color: transparent;
-    z-index: 40;
+    width: 100%;
 }
 
 .footer-container {
-    max-width: 42rem;
+    width: 100%;
     margin: 0 auto;
 }
 
 .footer-card {
-    background-color: var(--green-500);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    border-radius: 9999px;
-    padding: 0.75rem 1rem;
-    margin-left: auto;
-    width: fit-content;
+    background-color: var(--light-green-100);
+    border-radius: 24px;
+    padding: 24px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
 }
 
-.footer-content {
+.subtotal-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.subtotal-label {
+    color: var(--greyscale-800);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+}
+
+.subtotal-value {
+    color: var(--greyscale-900);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+}
+
+.discount-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.discount-label {
+    color: var(--greyscale-800);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+}
+
+.discount-value {
+    color: var(--green-700);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+}
+
+.discount-section {
+    background-color: var(--green-500);
+    border-radius: 24px;
+    padding: 16px;
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.discount-header {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0 1rem;
+    gap: 8px;
 }
 
-.progress-circle-container {
-    width: 4rem;
-    height: 4rem;
-    border-radius: 9999px;
-    background-color: var(--green-700);
+.discount-emoji {
+    width: 40px;
+    height: 40px;
+    font-size: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    position: relative;
 }
 
-.progress-circle {
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
-}
-
-.shopping-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.total-price {
-    color: white;
+.discount-title {
+    color: var(--greyscale-50);
+    font-family: 'Raleway', sans-serif;
     font-size: 24px;
     font-weight: 600;
+    line-height: 32px;
+    margin: 0;
 }
 
-.item-count {
-    color: rgba(255, 255, 255, 0.64);
+.discount-content {
+    padding: 0 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.discount-description {
+    color: var(--greyscale-50);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    text-align: left;
+    margin: 0;
+}
+
+.discount-input {
+    text-align: center;
+}
+
+.footer-divider {
+    width: 100%;
+    height: 1px;
+    background-color: var(--greyscale-400);
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.total-label {
+    color: var(--greyscale-900);
+    font-family: 'Raleway', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 24px;
+}
+
+.total-value {
+    color: var(--green-500);
+    font-family: 'Raleway', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 32px;
+}
+
+.footer-metadata {
+    color: var(--greyscale-700);
+    font-family: 'Open Sans', sans-serif;
     font-size: 14px;
+    font-weight: 400;
+    line-height: 24px;
+    text-align: center;
+}
+
+/* Add Product Form (Inline) */
+.add-product-form-container {
+    width: 100%;
+    background-color: var(--greyscale-50);
+    border-radius: 24px;
+    padding: 24px;
+    margin-top: 24px;
+    text-align: left;
+}
+
+.add-product-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.form-header label {
+    color: var(--color-text-secondary);
+    font-size: 20px;
+    line-height: 24px;
+    font-weight: 400;
+    margin: 0;
+}
+
+.form-close-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    color: var(--greyscale-500);
+    flex-shrink: 0;
+}
+
+.form-close-btn:hover {
+    background-color: var(--greyscale-100);
 }
 
 /* Modal */
@@ -647,7 +811,6 @@ label {
     display: flex;
     flex-direction: column-reverse;
     gap: 0.75rem;
-    padding-top: 1rem;
 }
 
 .form-actions .btn-primary,
@@ -657,69 +820,27 @@ label {
 }
 
 /* Media Queries - Breakpoints per Guidelines */
-/* sm: 0-639px (mobile) - default styles above */
+/* sm: 0-639px (mobile) */
+@media (max-width: 639px) {
+    .app-container {
+        padding: 24px;
+    }
+}
 
 /* md: 640px-1024px (tablet) */
 @media (min-width: 640px) {
-    .header {
-        margin: 0 64px;
-        margin-bottom: 1.5rem;
-    }
-
-    .header-container {
-        padding: 0 64px;
-        max-width: 1024px;
-    }
-
-    .container {
-        max-width: 1024px;
-        padding: 0 64px;
+    .app-container {
+        max-width: 580px;
     }
 
     .form-actions {
         flex-direction: row;
     }
-
-    .footer {
-        padding: 15px 64px;
-    }
 }
 
-/* lg: 1024px-1440px (small desktop) */
+/* lg: 1024px+ (desktop) */
 @media (min-width: 1024px) {
-    .header {
-        margin: 0 80px;
-        margin-bottom: 1.5rem;
-    }
-
-    .header-container {
-        padding: 0 80px;
-        max-width: 1024px;
-    }
-
-    .container {
-        max-width: 1024px;
-        padding: 0 80px;
-    }
-
-    .footer {
-        padding: 16px 80px;
-    }
-}
-
-/* xl: 1440px+ (desktop) */
-@media (min-width: 1440px) {
-    .header-container {
-        padding: 0 80px;
-        max-width: 1024px;
-    }
-}
-
-/* 2xl: 1920px+ (large desktop) */
-@media (min-width: 1920px) {
-    .container {
-        max-width: 1024px;
-        margin: 0 auto;
-        padding: 0 80px;
+    .app-container {
+        max-width: 780px;
     }
 }

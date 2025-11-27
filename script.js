@@ -1,18 +1,28 @@
 // State Management
 let products = [];
 
+// Helper function to format currency (Latin American format)
+function formatCurrency(amount) {
+    // Format with 2 decimal places
+    const formatted = amount.toFixed(2);
+    // Split into integer and decimal parts
+    const [integer, decimal] = formatted.split('.');
+    // Add thousand separators (dots)
+    const withThousands = integer.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    // Join with comma as decimal separator
+    return `$${withThousands},${decimal}`;
+}
+
 // DOM Elements
 const emptyState = document.getElementById('emptyState');
 const productsList = document.getElementById('productsList');
 const productsContainer = document.getElementById('productsContainer');
 const headerAddBtn = document.getElementById('headerAddBtn');
-const addProductModal = document.getElementById('addProductModal');
+const addProductFormContainer = document.getElementById('addProductFormContainer');
 const addProductForm = document.getElementById('addProductForm');
 const productNameInput = document.getElementById('productName');
-const cancelBtn = document.getElementById('cancelBtn');
-const totalPriceEl = document.getElementById('totalPrice');
-const itemCountEl = document.getElementById('itemCount');
-const progressBar = document.getElementById('progressBar');
+const formCloseBtn = document.getElementById('formCloseBtn');
+const discountInput = document.getElementById('discountInput');
 
 // Initialize App
 function init() {
@@ -36,26 +46,32 @@ function saveProducts() {
 
 // Setup Event Listeners
 function setupEventListeners() {
-    // Open modal
-    headerAddBtn.addEventListener('click', openModal);
+    // Toggle form
+    headerAddBtn.addEventListener('click', toggleForm);
 
-    // Close modal
-    cancelBtn.addEventListener('click', closeModal);
-    addProductModal.querySelector('.modal-overlay').addEventListener('click', closeModal);
+    // Close form
+    formCloseBtn.addEventListener('click', closeForm);
 
     // Form submission
     addProductForm.addEventListener('submit', handleAddProduct);
+
+    // Discount input
+    discountInput.addEventListener('input', updateFooter);
 }
 
-// Open Modal
-function openModal() {
-    addProductModal.classList.add('show');
-    productNameInput.focus();
+// Toggle Form
+function toggleForm() {
+    if (addProductFormContainer.style.display === 'none') {
+        addProductFormContainer.style.display = 'block';
+        productNameInput.focus();
+    } else {
+        closeForm();
+    }
 }
 
-// Close Modal
-function closeModal() {
-    addProductModal.classList.remove('show');
+// Close Form
+function closeForm() {
+    addProductFormContainer.style.display = 'none';
     productNameInput.value = '';
 }
 
@@ -70,18 +86,22 @@ function handleAddProduct(e) {
         id: Date.now().toString(),
         name: name,
         price: 0.0,
-        quantity: 0.0,
+        quantity: 1,
         completed: false
     };
 
-    products.push(newProduct);
+    products.unshift(newProduct);
     saveProducts();
     renderProducts();
-    closeModal();
+    closeForm();
 }
 
 // Toggle Product Completion
-function toggleProduct(id) {
+function toggleProduct(id, event) {
+    // Find the product to check if it's being completed (not unchecked)
+    const product = products.find(p => p.id === id);
+    const isBeingCompleted = product && !product.completed;
+
     products = products.map(product =>
         product.id === id
             ? { ...product, completed: !product.completed }
@@ -89,6 +109,23 @@ function toggleProduct(id) {
     );
     saveProducts();
     renderProducts();
+
+    // Add bounce animation after rendering (only when completing)
+    if (isBeingCompleted) {
+        // Wait for DOM to update, then find the card and animate it
+        setTimeout(() => {
+            const cards = document.querySelectorAll('.product-card');
+            cards.forEach(card => {
+                const checkbox = card.querySelector('.checkbox-btn');
+                if (checkbox && checkbox.onclick && checkbox.onclick.toString().includes(id)) {
+                    card.classList.add('bounce');
+                    setTimeout(() => {
+                        card.classList.remove('bounce');
+                    }, 250);
+                }
+            });
+        }, 10);
+    }
 }
 
 // Remove Product
@@ -158,7 +195,7 @@ function createProductCard(product) {
         <div class="product-card-inner">
             <!-- Top row -->
             <div class="product-card-top">
-                <button class="checkbox-btn ${product.completed ? 'checked' : ''}" onclick="toggleProduct('${product.id}')">
+                <button class="checkbox-btn ${product.completed ? 'checked' : ''}" onclick="toggleProduct('${product.id}', event)">
                     <svg class="checkbox-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#000000" stroke-width="2">
                         <path d="M5 10l3 3 7-7" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
@@ -227,20 +264,30 @@ function createProductCard(product) {
 // Update Footer
 function updateFooter() {
     const completedCount = products.filter(p => p.completed).length;
-    const totalPrice = products.reduce((sum, product) =>
+    const totalCount = products.length;
+
+    // Calculate subtotal (sum of all items)
+    const subtotal = products.reduce((sum, product) =>
         sum + (product.price * product.quantity), 0
     );
-    const progress = products.length > 0 ? (completedCount / products.length) * 100 : 0;
 
-    totalPriceEl.textContent = `$${totalPrice.toFixed(2)}`;
-    itemCountEl.textContent = `${completedCount} of ${products.length}`;
+    // Get discount percentage from input
+    const discountPercent = parseFloat(discountInput.value) || 0;
+    const discount = (subtotal * discountPercent) / 100;
 
-    // Update progress circle
-    const circumference = 2 * Math.PI * 29;
-    const offset = circumference * (1 - progress / 100);
-    progressBar.style.strokeDasharray = circumference;
-    progressBar.style.strokeDashoffset = offset;
-    progressBar.style.transition = 'stroke-dashoffset 0.5s ease-out';
+    // Calculate total
+    const total = subtotal - discount;
+
+    // Update footer values
+    const subtotalValue = document.querySelector('.subtotal-value');
+    const discountValue = document.querySelector('.discount-value');
+    const totalValue = document.querySelector('.total-value');
+    const metadata = document.querySelector('.footer-metadata');
+
+    if (subtotalValue) subtotalValue.textContent = formatCurrency(subtotal);
+    if (discountValue) discountValue.textContent = `-${formatCurrency(discount).substring(1)}`;
+    if (totalValue) totalValue.textContent = formatCurrency(total);
+    if (metadata) metadata.textContent = `${completedCount} of ${totalCount} items checked`;
 }
 
 // Render Products
