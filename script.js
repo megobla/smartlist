@@ -1,5 +1,29 @@
-// State Management
+// script.js — Refactored (modular, delegated events, safer storage)
+//
+// - Uses event delegation on #productsContainer
+// - Native checkbox: <input type="checkbox" class="product-checkbox" id="chk-..."> + <label class="checkbox-btn" for="chk-...">
+// - updateProduct helper centralizes product updates
+// - computeTotals is pure
+// - Safe localStorage parsing
+
+const STORAGE_KEY = 'smartlist-products';
+
+// App state
 let products = [];
+
+// DOM refs
+const emptyState = document.getElementById('emptyState');
+const productsList = document.getElementById('productsList');
+const productsContainer = document.getElementById('productsContainer');
+const headerAddBtn = document.getElementById('headerAddBtn');
+const addProductForm = document.getElementById('addProductForm');
+const addProductFormContainer = document.getElementById('addProductFormContainer');
+const formCloseBtn = document.getElementById('formCloseBtn');
+const productNameInput = document.getElementById('productName');
+const discountInput = document.getElementById('discountInput');
+const discountSection = document.querySelector('.discount-section');
+const footer = document.querySelector('.footer');
+const announcer = document.getElementById('announcer');
 
 // Helper function to format currency (Latin American format)
 function formatCurrency(amount) {
@@ -13,73 +37,97 @@ function formatCurrency(amount) {
     return `$${withThousands},${decimal}`;
 }
 
-// DOM Elements
-const emptyState = document.getElementById('emptyState');
-const productsList = document.getElementById('productsList');
-const productsContainer = document.getElementById('productsContainer');
-const headerAddBtn = document.getElementById('headerAddBtn');
-const addProductFormContainer = document.getElementById('addProductFormContainer');
-const addProductForm = document.getElementById('addProductForm');
-const productNameInput = document.getElementById('productName');
-const formCloseBtn = document.getElementById('formCloseBtn');
-const discountInput = document.getElementById('discountInput');
+// Utility — safe parse
+function safeLoadProducts() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    console.warn('Failed to parse products from storage', e);
+    localStorage.removeItem(STORAGE_KEY);
+    return [];
+  }
+}
+
+function saveProducts() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+  } catch (e) {
+    console.warn('Failed to save products', e);
+  }
+}
+
+// Pure helper
+function computeTotals(items, discountPercent = 0) {
+  const subtotal = items.reduce((s, p) => s + (Number(p.price || 0) * Number(p.quantity || 0)), 0);
+  const discount = (subtotal * (Number(discountPercent) || 0)) / 100;
+  const total = subtotal - discount;
+  const completed = items.filter(p => p.completed).length;
+  return { subtotal, discount, total, completed, count: items.length };
+}
+
+// Central update helper — returns true if updated
+function updateProduct(id, patch) {
+  let changed = false;
+  products = products.map(p => {
+    if (p.id !== id) return p;
+    changed = true;
+    return { ...p, ...patch };
+  });
+  if (changed) saveProducts();
+  return changed;
+}
 
 // Initialize App
 function init() {
-    loadProducts();
+    products = safeLoadProducts();
     renderProducts();
     setupEventListeners();
 }
 
-// Load products from localStorage
-function loadProducts() {
-    const savedProducts = localStorage.getItem('smartlist-products');
-    if (savedProducts) {
-        products = JSON.parse(savedProducts);
-    }
-}
-
-// Save products to localStorage
-function saveProducts() {
-    localStorage.setItem('smartlist-products', JSON.stringify(products));
-}
-
 // Setup Event Listeners
 function setupEventListeners() {
-    // Toggle form
-    headerAddBtn.addEventListener('click', toggleForm);
+    // Open add form
+    headerAddBtn?.addEventListener('click', openAddProductUI);
 
-    // Close form
-    formCloseBtn.addEventListener('click', closeForm);
+    // Close add form
+    formCloseBtn?.addEventListener('click', closeAddProductUI);
 
     // Form submission
-    addProductForm.addEventListener('submit', handleAddProduct);
+    addProductForm?.addEventListener('submit', onAddProductSubmit);
 
     // Discount input
-    discountInput.addEventListener('input', updateFooter);
+    discountInput?.addEventListener('input', updateFooter);
+
+    // Delegated events for product actions
+    productsContainer?.addEventListener('click', onProductsContainerClick);
+    productsContainer?.addEventListener('change', onProductsContainerChange);
 }
 
-// Toggle Form
-function toggleForm() {
-    if (addProductFormContainer.style.display === 'none') {
+// Open add product UI
+function openAddProductUI() {
+    if (addProductFormContainer) {
         addProductFormContainer.style.display = 'block';
-        productNameInput.focus();
-    } else {
-        closeForm();
+        productNameInput?.focus();
     }
 }
 
-// Close Form
-function closeForm() {
-    addProductFormContainer.style.display = 'none';
-    productNameInput.value = '';
+// Close add product UI
+function closeAddProductUI() {
+    if (addProductFormContainer) {
+        addProductFormContainer.style.display = 'none';
+        addProductForm?.reset();
+        headerAddBtn?.focus();
+    }
 }
 
 // Add Product
-function handleAddProduct(e) {
+function onAddProductSubmit(e) {
     e.preventDefault();
 
-    const name = productNameInput.value.trim();
+    const name = (productNameInput?.value || '').trim();
     if (!name) return;
 
     const newProduct = {
@@ -93,56 +141,24 @@ function handleAddProduct(e) {
     products.unshift(newProduct);
     saveProducts();
     renderProducts();
-    closeForm();
+    closeAddProductUI();
+    announce('Item added');
 }
 
-// Toggle Product Completion
-function toggleProduct(id, event) {
-    // Find the product to check if it's being completed (not unchecked)
-    const product = products.find(p => p.id === id);
-    const isBeingCompleted = product && !product.completed;
-
-    products = products.map(product =>
-        product.id === id
-            ? { ...product, completed: !product.completed }
-            : product
-    );
-    saveProducts();
-    renderProducts();
-
-    // Add bounce animation after rendering (only when completing)
-    if (isBeingCompleted) {
-        // Wait for DOM to update, then find the card and animate it
-        setTimeout(() => {
-            const cards = document.querySelectorAll('.product-card');
-            cards.forEach(card => {
-                const checkbox = card.querySelector('.checkbox-btn');
-                if (checkbox && checkbox.onclick && checkbox.onclick.toString().includes(id)) {
-                    card.classList.add('bounce');
-                    setTimeout(() => {
-                        card.classList.remove('bounce');
-                    }, 250);
-                }
-            });
-        }, 10);
-    }
-}
+// Toggle Product Completion (via native checkbox change event)
+// Handled in onProductsContainerChange
 
 // Remove Product
 function removeProduct(id) {
     products = products.filter(product => product.id !== id);
     saveProducts();
     renderProducts();
+    announce('Item removed');
 }
 
 // Update Price
 function updatePrice(id, price) {
-    products = products.map(product =>
-        product.id === id
-            ? { ...product, price: parseFloat(price) || 0 }
-            : product
-    );
-    saveProducts();
+    updateProduct(id, { price: parseFloat(price) || 0 });
     updateFooter();
 }
 
@@ -153,37 +169,31 @@ function handlePriceFocus(event) {
     }
 }
 
+// Handle Discount Focus - Clear "0" when clicked
+function handleDiscountFocus(event) {
+    if (event.target.value === '0' || event.target.value === '') {
+        event.target.value = '';
+    }
+}
+
 // Update Quantity
 function updateQuantity(id, quantity) {
-    const qty = parseFloat(quantity) || 0;
-    products = products.map(product =>
-        product.id === id
-            ? { ...product, quantity: Math.max(0, qty) }
-            : product
-    );
-    saveProducts();
+    const qty = Math.max(0, parseInt(quantity, 10) || 0);
+    updateProduct(id, { quantity: qty });
     updateFooter();
 }
 
 // Increment Quantity
 function incrementQuantity(id) {
-    products = products.map(product =>
-        product.id === id
-            ? { ...product, quantity: product.quantity + 1 }
-            : product
-    );
-    saveProducts();
+    const current = Number(products.find(p => p.id === id)?.quantity || 0);
+    updateProduct(id, { quantity: current + 1 });
     renderProducts();
 }
 
 // Decrement Quantity
 function decrementQuantity(id) {
-    products = products.map(product =>
-        product.id === id
-            ? { ...product, quantity: Math.max(0, product.quantity - 1) }
-            : product
-    );
-    saveProducts();
+    const current = Number(products.find(p => p.id === id)?.quantity || 0);
+    updateProduct(id, { quantity: Math.max(0, current - 1) });
     renderProducts();
 }
 
@@ -191,19 +201,21 @@ function decrementQuantity(id) {
 function createProductCard(product) {
     const card = document.createElement('div');
     card.className = 'product-card';
+    card.dataset.id = product.id;
     card.innerHTML = `
         <div class="product-card-inner">
             <!-- Top row -->
             <div class="product-card-top">
-                <button class="checkbox-btn ${product.completed ? 'checked' : ''}" onclick="toggleProduct('${product.id}', event)">
+                <input type="checkbox" id="chk-${product.id}" class="product-checkbox" ${product.completed ? 'checked' : ''} />
+                <label for="chk-${product.id}" class="checkbox-btn" aria-hidden="true">
                     <svg class="checkbox-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#000000" stroke-width="2">
                         <path d="M5 10l3 3 7-7" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
-                </button>
+                </label>
 
-                <p class="product-title ${product.completed ? 'completed' : ''}">${product.name}</p>
+                <p class="product-title ${product.completed ? 'completed' : ''}">${escapeHtml(product.name)}</p>
 
-                <button class="remove-btn" onclick="removeProduct('${product.id}')">
+                <button class="remove-btn" data-action="remove" aria-label="Remove ${escapeHtml(product.name)}">
                     <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -215,13 +227,14 @@ function createProductCard(product) {
             <div class="product-inputs">
                 <!-- Price Input -->
                 <div class="input-group">
-                    <label class="input-label">Price ($)</label>
+                    <label class="input-label" for="price-${product.id}">Price ($)</label>
                     <input
+                        id="price-${product.id}"
                         type="number"
                         class="form-input"
+                        data-type="price"
                         value="${product.price}"
                         onfocus="handlePriceFocus(event)"
-                        onchange="updatePrice('${product.id}', this.value)"
                         step="0.01"
                         min="0"
                     />
@@ -229,24 +242,25 @@ function createProductCard(product) {
 
                 <!-- Quantity Input -->
                 <div class="input-group">
-                    <label class="input-label">Qty</label>
+                    <label class="input-label" for="qty-${product.id}">Qty</label>
                     <div class="quantity-input-wrapper">
-                        <button class="quantity-btn quantity-btn-minus" onclick="decrementQuantity('${product.id}')">
+                        <button class="quantity-btn quantity-btn-minus" data-action="decrement" aria-label="Decrease quantity for ${escapeHtml(product.name)}">
                             <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                             </svg>
                         </button>
 
                         <input
+                            id="qty-${product.id}"
                             type="number"
                             class="form-input"
+                            data-type="qty"
                             value="${product.quantity}"
-                            onchange="updateQuantity('${product.id}', this.value)"
                             step="1"
                             min="0"
                         />
 
-                        <button class="quantity-btn quantity-btn-plus" onclick="incrementQuantity('${product.id}')">
+                        <button class="quantity-btn quantity-btn-plus" data-action="increment" aria-label="Increase quantity for ${escapeHtml(product.name)}">
                             <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -289,7 +303,6 @@ function updateFooter() {
     if (totalValue) totalValue.textContent = formatCurrency(total);
     if (metadata) metadata.textContent = `${completedCount} of ${totalCount} items checked`;
 }
-
 // Render Products
 function renderProducts() {
     // Clear container
@@ -299,19 +312,87 @@ function renderProducts() {
     if (products.length === 0) {
         emptyState.style.display = 'flex';
         productsList.style.display = 'none';
+        discountSection.style.display = 'none';
+        footer.style.display = 'none';
     } else {
         emptyState.style.display = 'none';
         productsList.style.display = 'block';
+        discountSection.style.display = 'block';
+        footer.style.display = 'block';
 
-        // Render each product
+        // Render each product using document fragment
+        const frag = document.createDocumentFragment();
         products.forEach(product => {
             const card = createProductCard(product);
-            productsContainer.appendChild(card);
+            frag.appendChild(card);
         });
+        productsContainer.appendChild(frag);
     }
 
     // Update footer
     updateFooter();
+}
+
+// Event delegation for product container — click events
+function onProductsContainerClick(e) {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    const card = btn.closest('.product-card');
+    if (!card) return;
+    const id = card.dataset.id;
+    if (!id) return;
+
+    if (action === 'remove') {
+        removeProduct(id);
+    } else if (action === 'increment') {
+        incrementQuantity(id);
+    } else if (action === 'decrement') {
+        decrementQuantity(id);
+    }
+}
+
+// Event delegation for product container — change events (checkbox, inputs)
+function onProductsContainerChange(e) {
+    const input = e.target.closest('input');
+    if (!input) return;
+    const card = input.closest('.product-card');
+    if (!card) return;
+    const id = card.dataset.id;
+    if (!id) return;
+
+    // Handle checkbox
+    if (input.type === 'checkbox' && input.classList.contains('product-checkbox')) {
+        updateProduct(id, { completed: input.checked });
+        renderProducts();
+        announce(input.checked ? 'Marked item complete' : 'Marked item incomplete');
+        return;
+    }
+
+    // Handle number inputs (price, qty)
+    const type = input.dataset.type;
+    if (type === 'price') {
+        updatePrice(id, input.value);
+    } else if (type === 'qty') {
+        updateQuantity(id, input.value);
+    }
+}
+
+// Announce helper (aria-live)
+function announce(message) {
+    if (!announcer) return;
+    announcer.textContent = message;
+    setTimeout(() => (announcer.textContent = ''), 1000);
+}
+
+// Escape HTML
+function escapeHtml(str) {
+    return String(str).replace(/[&<>"]/g, (s) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;'
+    }[s]));
 }
 
 // Initialize app when DOM is loaded

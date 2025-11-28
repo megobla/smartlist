@@ -34,7 +34,7 @@
                 <div id="addProductFormContainer" class="add-product-form-container" style="display: none;">
                     <form id="addProductForm" class="add-product-form">
                         <div class="form-header">
-                            <label for="productName">Product Name</label>
+                            <label for="productName">New Product? Throw it on the List</label>
                             <button type="button" class="form-close-btn" id="formCloseBtn">
                                 <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -87,15 +87,19 @@
                     </div>
                     <div class="discount-content">
                         <p class="discount-description">Enter discount value and make bankruptcy fun</p>
-                        <input
-                            type="number"
-                            id="discountInput"
-                            class="form-input discount-input"
-                            placeholder="0"
-                            min="0"
-                            max="100"
-                            step="1"
-                        />
+                        <div class="discount-input-wrapper">
+                            <input
+                                type="number"
+                                id="discountInput"
+                                class="form-input discount-input"
+                                value="0"
+                                min="0"
+                                max="100"
+                                step="1"
+                                onfocus="handleDiscountFocus(event)"
+                            />
+                            <span class="discount-percent-symbol">%</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -134,5 +138,8 @@
     </div>
 
     <script src="script.js"></script>
+
+    <!-- Announcer for aria-live feedback to screen readers -->
+    <div id="announcer" aria-live="polite" style="position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden;"></div>
 </body>
 </html>

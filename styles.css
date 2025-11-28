@@ -38,6 +38,11 @@
     --greyscale-800: #2F3535;
     --greyscale-900: #000000;
 
+    /* Error */
+    --red-50: #FF6666;
+    --red-100: #DA0707;
+    --red-200: #990000;
+
     /* Color System Semantic Tokens */
     --color-primary: var(--green-500);
     --color-primary-dark: var(--green-700);
@@ -200,6 +205,7 @@ label {
     width: 77px;
     height: 80px;
     object-fit: contain;
+    animation: animate-bounce 1s ease-in-out infinite;
 }
 
 .subtitle {
@@ -366,6 +372,36 @@ label {
     display: block;
 }
 
+/* Native checkbox styling: hide input, use label as visual checkbox */
+.product-checkbox {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    white-space: nowrap;
+}
+
+/* Label acts as visual checkbox */
+.product-checkbox + .checkbox-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* Checked state via adjacent sibling selector */
+.product-checkbox:checked + .checkbox-btn {
+    border-color: var(--light-green-400);
+    background-color: var(--light-green-400);
+}
+
+/* Show checkmark when checked */
+.product-checkbox:checked + .checkbox-btn .checkbox-icon {
+    display: block;
+}
+
 /* Bounce animation - snappy completion feedback */
 @keyframes bounce {
     0% {
@@ -381,6 +417,32 @@ label {
 
 .product-card.bounce {
     animation: bounce 0.25s ease-out;
+}
+
+/* Animate bounce - continuous bouncing effect for logo */
+@keyframes animate-bounce {
+    0%, 100% {
+        transform: translateY(0%);
+    }
+    50% {
+        transform: translateY(-15%);
+    }
+}
+
+/* Sparkle animation - gentle pulse and rotate for discount emoji */
+@keyframes sparkle {
+    0%, 100% {
+        transform: rotate(0deg) scale(1);
+    }
+    25% {
+        transform: rotate(-15deg) scale(1.1);
+    }
+    50% {
+        transform: rotate(0deg) scale(1);
+    }
+    75% {
+        transform: rotate(15deg) scale(1.1);
+    }
 }
 
 .product-title {
@@ -555,6 +617,7 @@ label {
 .subtotal-row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     width: 100%;
 }
 
@@ -577,6 +640,7 @@ label {
 .discount-row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     width: 100%;
 }
 
@@ -589,7 +653,7 @@ label {
 }
 
 .discount-value {
-    color: var(--green-700);
+    color: var(--green-500);
     font-family: 'Open Sans', sans-serif;
     font-size: 16px;
     font-weight: 400;
@@ -619,6 +683,7 @@ label {
     display: flex;
     align-items: center;
     justify-content: center;
+    animation: sparkle 2s ease-in-out infinite;
 }
 
 .discount-title {
@@ -651,6 +716,24 @@ label {
     text-align: center;
 }
 
+.discount-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.discount-percent-symbol {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    color: var(--greyscale-900);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 24px;
+    pointer-events: none;
+}
+
 .footer-divider {
     width: 100%;
     height: 1px;
@@ -660,6 +743,7 @@ label {
 .total-row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     width: 100%;
 }
 
@@ -823,7 +907,7 @@ label {
 /* sm: 0-639px (mobile) */
 @media (max-width: 639px) {
     .app-container {
-        padding: 24px;
+        padding: 16px;
     }
 }
 
@@ -831,6 +915,7 @@ label {
 @media (min-width: 640px) {
     .app-container {
         max-width: 580px;
+        padding: 24px;
     }
 
     .form-actions {
