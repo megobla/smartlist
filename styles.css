@@ -400,6 +400,22 @@ label {
 /* Show checkmark when checked */
 .product-checkbox:checked + .checkbox-btn .checkbox-icon {
     display: block;
+    animation: checkmark-pop 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Checkmark pop animation - satisfying scale-in effect */
+@keyframes checkmark-pop {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 /* Bounce animation - snappy completion feedback */
@@ -415,7 +431,8 @@ label {
     }
 }
 
-.product-card.bounce {
+.product-card.bounce,
+.products-container.bounce {
     animation: bounce 0.25s ease-out;
 }
 

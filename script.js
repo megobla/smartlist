@@ -364,6 +364,13 @@ function onProductsContainerChange(e) {
     // Handle checkbox
     if (input.type === 'checkbox' && input.classList.contains('product-checkbox')) {
         updateProduct(id, { completed: input.checked });
+
+        // Add bounce animation to entire container
+        productsContainer.classList.add('bounce');
+        productsContainer.addEventListener('animationend', () => {
+            productsContainer.classList.remove('bounce');
+        }, { once: true });
+
         renderProducts();
         announce(input.checked ? 'Marked item complete' : 'Marked item incomplete');
         return;
