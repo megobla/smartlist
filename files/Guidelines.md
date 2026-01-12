@@ -130,6 +130,7 @@ Apply only to H4
 - green-900: #052A28
 
 - **Light green**
+- light-green-100: #EAF6DA
 - light-green-400: #C5E99F
 
 - **Greyscale**
@@ -143,6 +144,11 @@ Apply only to H4
 - greyscale-700: #4C5353
 - greyscale-800: #2F3535
 - greyscale-900: #000000
+
+- **Error**
+- red-50: #FF6666
+- red-100: #DA0707
+- red-200: #990000
 
 ### Color System guidelines
 - **Background**: Greyscale-50 (background color)

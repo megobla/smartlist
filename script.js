@@ -22,6 +22,7 @@ const formCloseBtn = document.getElementById('formCloseBtn');
 const productNameInput = document.getElementById('productName');
 const discountInput = document.getElementById('discountInput');
 const discountSection = document.querySelector('.discount-section');
+const header = document.querySelector('.header');
 const footer = document.querySelector('.footer');
 const announcer = document.getElementById('announcer');
 
@@ -62,8 +63,8 @@ function saveProducts() {
 // Pure helper
 function computeTotals(items, discountPercent = 0) {
   const subtotal = items.reduce((s, p) => s + (Number(p.price || 0) * Number(p.quantity || 0)), 0);
-  const discount = (subtotal * (Number(discountPercent) || 0)) / 100;
-  const total = subtotal - discount;
+  const discount = Math.round((subtotal * (Number(discountPercent) || 0)) / 100 * 100) / 100;
+  const total = Math.round((subtotal - discount) * 100) / 100;
   const completed = items.filter(p => p.completed).length;
   return { subtotal, discount, total, completed, count: items.length };
 }
@@ -104,6 +105,32 @@ function setupEventListeners() {
     // Delegated events for product actions
     productsContainer?.addEventListener('click', onProductsContainerClick);
     productsContainer?.addEventListener('change', onProductsContainerChange);
+
+    // Setup footer visibility based on header intersection
+    setupFooterVisibility();
+}
+
+// Hide footer when header is in view
+function setupFooterVisibility() {
+    if (!header || !footer) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Header is visible, hide footer
+                footer.style.opacity = '0';
+                footer.style.pointerEvents = 'none';
+            } else {
+                // Header is not visible, show footer
+                footer.style.opacity = '1';
+                footer.style.pointerEvents = 'auto';
+            }
+        });
+    }, {
+        threshold: 0.1
+    });
+
+    observer.observe(header);
 }
 
 // Open add product UI
@@ -287,10 +314,10 @@ function updateFooter() {
 
     // Get discount percentage from input
     const discountPercent = parseFloat(discountInput.value) || 0;
-    const discount = (subtotal * discountPercent) / 100;
+    const discount = Math.round((subtotal * discountPercent) / 100 * 100) / 100;
 
     // Calculate total
-    const total = subtotal - discount;
+    const total = Math.round((subtotal - discount) * 100) / 100;
 
     // Update footer values
     const subtotalValue = document.querySelector('.subtotal-value');
@@ -320,9 +347,15 @@ function renderProducts() {
         discountSection.style.display = 'block';
         footer.style.display = 'block';
 
+        // Sort products: uncompleted first, completed last
+        const sortedProducts = [...products].sort((a, b) => {
+            if (a.completed === b.completed) return 0;
+            return a.completed ? 1 : -1;
+        });
+
         // Render each product using document fragment
         const frag = document.createDocumentFragment();
-        products.forEach(product => {
+        sortedProducts.forEach(product => {
             const card = createProductCard(product);
             frag.appendChild(card);
         });
@@ -364,12 +397,6 @@ function onProductsContainerChange(e) {
     // Handle checkbox
     if (input.type === 'checkbox' && input.classList.contains('product-checkbox')) {
         updateProduct(id, { completed: input.checked });
-
-        // Add bounce animation to entire container
-        productsContainer.classList.add('bounce');
-        productsContainer.addEventListener('animationend', () => {
-            productsContainer.classList.remove('bounce');
-        }, { once: true });
 
         renderProducts();
         announce(input.checked ? 'Marked item complete' : 'Marked item incomplete');

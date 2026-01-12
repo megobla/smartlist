@@ -96,10 +96,10 @@ body {
     max-width: 880px;
     background-color: var(--greyscale-50);
     border-radius: 40px;
-    padding: 40px;
+    padding: 40px 40px 24px 40px;
     display: flex;
     flex-direction: column;
-    gap: 40px;
+
 }
 
 /* Typography */
@@ -186,6 +186,7 @@ label {
     background: linear-gradient(180deg, #115D5B -0.33%, #C5E99F 72.77%);
     border-radius: 24px;
     padding: 2rem 0;
+    margin-bottom: 40px;
 }
 
 .header-container {
@@ -277,7 +278,7 @@ label {
 /* Main Content */
 .main-content {
     flex: 1;
-    margin-bottom: -24px;
+    padding-bottom:16px;
 }
 
 .container {
@@ -293,12 +294,28 @@ label {
     align-items: center;
     justify-content: center;
     padding: 4rem 1rem;
+    position: relative;
 }
 
 .empty-state-img {
-    width: 224px;
-    height: 178px;
-    margin-bottom: 1rem;
+    width: 235px;
+    height: 288px;
+    position: relative;
+}
+
+.empty-state-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+.empty-state-badge {
+    display: block;
 }
 
 .empty-state-text {
@@ -307,6 +324,8 @@ label {
     line-height: 24px;
     font-weight: 400;
     text-align: center;
+    max-width: 200px;
+    margin: 0;
 }
 
 /* Products List */
@@ -400,7 +419,6 @@ label {
 /* Show checkmark when checked */
 .product-checkbox:checked + .checkbox-btn .checkbox-icon {
     display: block;
-    animation: checkmark-pop 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 /* Checkmark pop animation - satisfying scale-in effect */
@@ -613,6 +631,10 @@ label {
 /* Footer */
 .footer {
     width: 100%;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    transition: opacity 0.15s ease;
 }
 
 .footer-container {
@@ -621,7 +643,7 @@ label {
 }
 
 .footer-card {
-    background-color: var(--light-green-100);
+    background-color: var(--green-500);
     border-radius: 24px;
     padding: 24px;
     width: 100%;
@@ -639,7 +661,7 @@ label {
 }
 
 .subtotal-label {
-    color: var(--greyscale-800);
+    color: var(--greyscale-50);
     font-family: 'Open Sans', sans-serif;
     font-size: 16px;
     font-weight: 400;
@@ -647,7 +669,7 @@ label {
 }
 
 .subtotal-value {
-    color: var(--greyscale-900);
+    color: var(--greyscale-50);
     font-family: 'Open Sans', sans-serif;
     font-size: 16px;
     font-weight: 400;
@@ -662,7 +684,7 @@ label {
 }
 
 .discount-label {
-    color: var(--greyscale-800);
+    color: var(--greyscale-50);
     font-family: 'Open Sans', sans-serif;
     font-size: 16px;
     font-weight: 400;
@@ -670,7 +692,7 @@ label {
 }
 
 .discount-value {
-    color: var(--green-500);
+    color: var(--light-green-400);
     font-family: 'Open Sans', sans-serif;
     font-size: 16px;
     font-weight: 400;
@@ -678,7 +700,7 @@ label {
 }
 
 .discount-section {
-    background-color: var(--green-500);
+    background-color: var(--light-green-100);
     border-radius: 24px;
     padding: 16px;
     margin-top: 40px;
@@ -704,7 +726,7 @@ label {
 }
 
 .discount-title {
-    color: var(--greyscale-50);
+    color: var(--greyscale-900);
     font-family: 'Raleway', sans-serif;
     font-size: 24px;
     font-weight: 600;
@@ -720,7 +742,7 @@ label {
 }
 
 .discount-description {
-    color: var(--greyscale-50);
+    color: var(--greyscale-800);
     font-family: 'Open Sans', sans-serif;
     font-size: 16px;
     font-weight: 400;
@@ -754,7 +776,7 @@ label {
 .footer-divider {
     width: 100%;
     height: 1px;
-    background-color: var(--greyscale-400);
+    background-color: var(--green-400);
 }
 
 .total-row {
@@ -765,7 +787,7 @@ label {
 }
 
 .total-label {
-    color: var(--greyscale-900);
+    color: var(--greyscale-50);
     font-family: 'Raleway', sans-serif;
     font-size: 20px;
     font-weight: 600;
@@ -773,7 +795,7 @@ label {
 }
 
 .total-value {
-    color: var(--green-500);
+    color: var(--greyscale-50);
     font-family: 'Raleway', sans-serif;
     font-size: 24px;
     font-weight: 600;
@@ -781,7 +803,7 @@ label {
 }
 
 .footer-metadata {
-    color: var(--greyscale-700);
+    color: var(--greyscale-300);
     font-family: 'Open Sans', sans-serif;
     font-size: 14px;
     font-weight: 400;
@@ -924,7 +946,7 @@ label {
 /* sm: 0-639px (mobile) */
 @media (max-width: 639px) {
     .app-container {
-        padding: 16px;
+        padding: 16px 16px 24px 16px;
     }
 }
 
@@ -932,7 +954,7 @@ label {
 @media (min-width: 640px) {
     .app-container {
         max-width: 580px;
-        padding: 24px;
+        padding: 24px 24px 24px 24px;
     }
 
     .form-actions {
