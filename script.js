@@ -112,6 +112,7 @@ function setupEventListeners() {
 function openAddProductUI() {
     if (addProductFormContainer) {
         addProductFormContainer.style.display = 'block';
+        headerAddBtn.style.display = 'none';
         productNameInput?.focus();
     }
 }
@@ -120,6 +121,7 @@ function openAddProductUI() {
 function closeAddProductUI() {
     if (addProductFormContainer) {
         addProductFormContainer.style.display = 'none';
+        headerAddBtn.style.display = 'inline-flex';
         addProductForm?.reset();
         headerAddBtn?.focus();
     }
@@ -282,10 +284,10 @@ function updateFooter() {
     const completedCount = products.filter(p => p.completed).length;
     const totalCount = products.length;
 
-    // Calculate subtotal (sum of all items)
-    const subtotal = products.reduce((sum, product) =>
-        sum + (product.price * product.quantity), 0
-    );
+    // Calculate subtotal (sum of only checked/completed items)
+    const subtotal = products
+        .filter(product => product.completed)
+        .reduce((sum, product) => sum + (product.price * product.quantity), 0);
 
     // Get discount percentage from input
     const discountPercent = parseFloat(discountInput.value) || 0;
@@ -373,8 +375,23 @@ function onProductsContainerChange(e) {
     if (input.type === 'checkbox' && input.classList.contains('product-checkbox')) {
         updateProduct(id, { completed: input.checked });
 
-        renderProducts();
-        announce(input.checked ? 'Marked item complete' : 'Marked item incomplete');
+        // Find the checkbox button (label) and show active state
+        const checkboxBtn = card.querySelector('.checkbox-btn');
+        if (checkboxBtn) {
+            checkboxBtn.classList.add('active');
+
+            // Wait for animation to be visible, then move to bottom
+            setTimeout(() => {
+                checkboxBtn.classList.remove('active');
+                renderProducts();
+                announce(input.checked ? 'Marked item complete' : 'Marked item incomplete');
+            }, 400);
+        } else {
+            // Fallback if checkbox button not found
+            renderProducts();
+            announce(input.checked ? 'Marked item complete' : 'Marked item incomplete');
+        }
+
         return;
     }
 
