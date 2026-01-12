@@ -105,33 +105,8 @@ function setupEventListeners() {
     // Delegated events for product actions
     productsContainer?.addEventListener('click', onProductsContainerClick);
     productsContainer?.addEventListener('change', onProductsContainerChange);
-
-    // Setup footer visibility based on header intersection
-    setupFooterVisibility();
 }
 
-// Hide footer when header is in view
-function setupFooterVisibility() {
-    if (!header || !footer) return;
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                // Header is visible, hide footer
-                footer.style.opacity = '0';
-                footer.style.pointerEvents = 'none';
-            } else {
-                // Header is not visible, show footer
-                footer.style.opacity = '1';
-                footer.style.pointerEvents = 'auto';
-            }
-        });
-    }, {
-        threshold: 0.1
-    });
-
-    observer.observe(header);
-}
 
 // Open add product UI
 function openAddProductUI() {
