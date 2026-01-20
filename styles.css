@@ -294,59 +294,34 @@ label {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 4rem 1rem;
+    padding: 0 1rem 4rem 1rem;
     position: relative;
-}
-
-.empty-state-images {
-    width: 255px;
-    height: 291px;
-    position: relative;
-}
-
-.empty-state-img-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 153px;
-    height: 115px;
-    object-fit: contain;
-    z-index: 1;
-}
-
-.empty-state-img {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 233px;
-    height: 258px;
-    object-fit: contain;
-    z-index: 2;
 }
 
 .empty-state-box {
-    position: absolute;
-    left: 138.5px;
-    top: 162px;
-    transform: translate(-50%, -50%);
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 24px;
-    z-index: 3;
 }
 
-.empty-state-badge {
-    display: block;
+.empty-state-img {
+    width: 264px;
+    height: 305px;
+    object-fit: contain;
 }
 
 .empty-state-text {
+    position: absolute;
+    bottom: 72px;
+    left: 53%;
+    transform: translateX(-50%);
     color: var(--color-text-secondary);
     font-size: 20px;
     line-height: 24px;
     font-weight: 400;
     text-align: center;
-    max-width: 200px;
+    width: 180px;
     margin: 0;
 }
 
